@@ -21,7 +21,7 @@ func main() {
 		nextN = getExistingMax() + 1
 	}
 
-	nextDir := fmt.Sprintf("advent%d", nextN)
+	nextDir := fmt.Sprintf("advent%s", twoDigitInt(nextN))
 	err = copy.Copy("adventN", nextDir)
 	util.Panic(err)
 
@@ -68,4 +68,12 @@ func replacePackage(fileName, packageName string) {
 
 	err = ioutil.WriteFile(fileName, []byte(output), 0644)
 	util.Panic(err)
+}
+
+func twoDigitInt(i int) string {
+	s := strconv.Itoa(i)
+	if len(s) == 1 {
+		s = "0" + s
+	}
+	return s
 }
