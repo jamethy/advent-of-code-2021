@@ -13,12 +13,12 @@ func TestSolution(t *testing.T) {
 	}{
 		{
 			name: "simple",
-			wantPart1: 0,
+			wantPart1: 7,
 			wantPart2: 0,
 		},
 		{
 			name: "input",
-			wantPart1: 0,
+			wantPart1: 1688,
 			wantPart2: 0,
 		},
 	}
