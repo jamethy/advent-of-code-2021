@@ -9,26 +9,66 @@ import (
 func Solution(inputFile string) (part1, part2 interface{}) {
 	lines, bitLength := readAsBinaryInts(inputFile)
 
-	columnSums := make([]int, bitLength)
-	var i uint
-
-	for _, line := range lines {
-		for i = 0; i < bitLength; i++ {
-			if isBitSet(line, i) {
-				columnSums[i]++
-			}
-		}
-	}
-
 	var gamma uint
+	var i uint
 	for i = 0; i < bitLength; i++ {
-		if columnSums[i] >= len(lines)/2 {
+		columnSum := getColumnSum(lines, i)
+		if columnSum > len(lines)/2 {
 			gamma = setBit(gamma, i)
 		}
 	}
 
 	eps := flipAllBits(gamma, bitLength)
-	return int(gamma) * int(eps), 0
+
+	oxygen := getRating(lines, bitLength, true)
+	co2 := getRating(lines, bitLength, false)
+
+	return int(gamma) * int(eps), int(oxygen) * int(co2)
+}
+
+func getColumnSum(lines []uint, pos uint) int {
+	res := 0
+	for _, line := range lines {
+		if isBitSet(line, pos) {
+			res++
+		}
+	}
+	return res
+}
+
+func getRating(lines []uint, bitLength uint, one bool) uint {
+
+	var i uint
+	for i = uint(bitLength) - 1; i >= 0; i-- {
+		if len(lines) == 1 {
+			return lines[0]
+		} else if len(lines) == 2 {
+			firstSet, secondSet := isBitSet(lines[0], i), isBitSet(lines[1], i)
+			if firstSet != secondSet {
+				if firstSet == one {
+					return lines[0]
+				} else {
+					return lines[1]
+				}
+			}
+		}
+		sum := getColumnSum(lines, i)
+		bitIsSet := one == (sum > len(lines)/2)
+		lines = filter(lines, func(u uint) bool {
+			return isBitSet(u, i) == bitIsSet
+		})
+	}
+	return 0
+}
+
+func filter(lines []uint, f func(uint) bool) []uint {
+	res := make([]uint, 0)
+	for _, line := range lines {
+		if f(line) {
+			res = append(res, line)
+		}
+	}
+	return res
 }
 
 func isBitSet(i uint, pos uint) bool {
