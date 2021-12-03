@@ -10,13 +10,25 @@ func Solution(inputFile string) (part1, part2 interface{}) {
 
 	lines := fileAsInts(inputFile)
 
-	var count int
-	for i, depth := range lines[1:] {
-		if depth > lines[i] {
-			count++
+	var part1Count int
+	var part2Count int
+	for i := range lines {
+		if i == 0 {
+			continue
+		}
+		if lines[i] > lines[i-1] {
+			part1Count++
+		}
+
+		if i >= 3 {
+			prev := lines[i-3] + lines[i-2] + lines[i-1]
+			this := lines[i-2] + lines[i-1] + lines[i-0]
+			if this > prev {
+				part2Count++
+			}
 		}
 	}
-	return count, 0
+	return part1Count, part2Count
 }
 
 func fileAsInts(inputFile string) []int {
