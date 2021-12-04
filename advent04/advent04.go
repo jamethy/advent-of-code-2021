@@ -17,8 +17,9 @@ func Solution(inputFile string) (part1, part2 interface{}) {
 	boards := parseBoards(parts[1:])
 
 	winningBoard, winningNumber, called := findWinningBoard(boards, calls)
+	losingBoard, losingNumber, losingCalled := findLosingBoard(boards, calls)
 
-	return winningBoard.calculateScore(winningNumber, called), 0
+	return winningBoard.calculateScore(winningNumber, called), losingBoard.calculateScore(losingNumber, losingCalled)
 }
 
 func (b board) calculateScore(winningNumber int, called util.IntSet) int {
@@ -41,6 +42,25 @@ func findWinningBoard(boards []board, calls []int) (board, int, util.IntSet) {
 			if b.hasBingo(called) {
 				return b, call, called
 			}
+		}
+	}
+	return nil, 0, nil
+}
+
+func findLosingBoard(boards []board, calls []int) (board, int, util.IntSet) {
+	called := util.IntSet{}
+	for _, call := range calls {
+		called.Add(call)
+
+		losingBoards := make([]board, 0)
+		for _, b := range boards {
+			if !b.hasBingo(called) {
+				losingBoards = append(losingBoards, b)
+			}
+		}
+
+		if len(losingBoards) == 1 {
+			return findWinningBoard(losingBoards, calls)
 		}
 	}
 	return nil, 0, nil

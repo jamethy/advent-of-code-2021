@@ -14,7 +14,7 @@ func TestSolution(t *testing.T) {
 		{
 			name: "simple",
 			wantPart1: 4512,
-			wantPart2: 0,
+			wantPart2: 1924,
 		},
 		{
 			name: "input",
