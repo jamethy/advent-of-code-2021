@@ -33,3 +33,17 @@ func NewIntSet(i ...int) IntSet {
 	}
 	return s
 }
+
+func (s *IntSet) Contains(i int) bool {
+	_, ok := (*s)[i]
+	return ok
+}
+
+func (s *IntSet) ContainsSlice(i []int) bool {
+	for _, v := range i {
+		if !s.Contains(v) {
+			return false
+		}
+	}
+	return true
+}
