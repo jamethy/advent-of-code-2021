@@ -1,9 +1,8 @@
 package advent03
 
 import (
-	"strconv"
-
 	"advent2021/util"
+	"advent2021/util/bitutil"
 )
 
 func Solution(inputFile string) (part1, part2 interface{}) {
@@ -14,11 +13,11 @@ func Solution(inputFile string) (part1, part2 interface{}) {
 	for i = 0; i < bitLength; i++ {
 		columnSum := getColumnSum(lines, i)
 		if columnSum > len(lines)/2 {
-			gamma = setBit(gamma, i)
+			gamma = bitutil.SetBit(gamma, i)
 		}
 	}
 
-	eps := flipAllBits(gamma, bitLength)
+	eps := bitutil.FlipAllBits(gamma, bitLength)
 
 	oxygen := getRating(lines, bitLength, true)
 	co2 := getRating(lines, bitLength, false)
@@ -29,7 +28,7 @@ func Solution(inputFile string) (part1, part2 interface{}) {
 func getColumnSum(lines []uint, pos uint) int {
 	res := 0
 	for _, line := range lines {
-		if isBitSet(line, pos) {
+		if bitutil.IsBitSet(line, pos) {
 			res++
 		}
 	}
@@ -43,7 +42,7 @@ func getRating(lines []uint, bitLength uint, one bool) uint {
 		if len(lines) == 1 {
 			return lines[0]
 		} else if len(lines) == 2 {
-			firstSet, secondSet := isBitSet(lines[0], i), isBitSet(lines[1], i)
+			firstSet, secondSet := bitutil.IsBitSet(lines[0], i), bitutil.IsBitSet(lines[1], i)
 			if firstSet != secondSet {
 				if firstSet == one {
 					return lines[0]
@@ -55,7 +54,7 @@ func getRating(lines []uint, bitLength uint, one bool) uint {
 		sum := getColumnSum(lines, i)
 		bitIsSet := one == (sum > len(lines)/2)
 		lines = filter(lines, func(u uint) bool {
-			return isBitSet(u, i) == bitIsSet
+			return bitutil.IsBitSet(u, i) == bitIsSet
 		})
 	}
 	return 0
@@ -71,20 +70,6 @@ func filter(lines []uint, f func(uint) bool) []uint {
 	return res
 }
 
-func isBitSet(i uint, pos uint) bool {
-	return i&(1<<pos) > 0
-}
-
-func setBit(i uint, pos uint) uint {
-	i |= 1 << pos
-	return i
-}
-
-func flipAllBits(i uint, bits uint) uint {
-	maxVal := uint(1)<<bits - 1
-	return i ^ maxVal
-}
-
 func readAsBinaryInts(inputFile string) ([]uint, uint) {
 	lines := util.ReadFile(inputFile)
 	bitSize := uint(len(lines[0]))
@@ -92,11 +77,11 @@ func readAsBinaryInts(inputFile string) ([]uint, uint) {
 	res := make([]uint, 0, len(lines))
 
 	for _, s := range lines {
-		v, err := strconv.ParseUint(s, 2, int(bitSize))
+		v, err := bitutil.ParseBinary(s)
 		if err != nil {
 			continue
 		}
-		res = append(res, uint(v))
+		res = append(res, v)
 	}
 	return res, bitSize
 }

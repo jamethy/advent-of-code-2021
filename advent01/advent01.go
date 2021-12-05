@@ -1,14 +1,13 @@
 package advent01
 
 import (
-	"strconv"
-
 	"advent2021/util"
 )
 
 func Solution(inputFile string) (part1, part2 interface{}) {
 
-	lines := fileAsInts(inputFile)
+	strLines := util.ReadFile(inputFile)
+	lines := util.StringsToInts(strLines)
 
 	var part1Count int
 	var part2Count int
@@ -29,17 +28,4 @@ func Solution(inputFile string) (part1, part2 interface{}) {
 		}
 	}
 	return part1Count, part2Count
-}
-
-func fileAsInts(inputFile string) []int {
-	lines := util.ReadFile(inputFile)
-	ints := make([]int, 0, len(lines))
-	for _, s := range lines {
-		i, err := strconv.Atoi(s)
-		if err != nil {
-			continue
-		}
-		ints = append(ints, i)
-	}
-	return ints
 }

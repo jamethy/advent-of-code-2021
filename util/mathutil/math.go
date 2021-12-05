@@ -1,6 +1,10 @@
-package util
+package mathutil
 
-import "math"
+import (
+	"math"
+
+	"advent2021/util/set"
+)
 
 func Round(f float64) int {
 	return int(math.Round(f))
@@ -56,18 +60,18 @@ func Rotate(x, y, rad float64) (float64, float64) {
 	return nx, ny
 }
 
-func PrimeFactors(n int) IntSet {
-	set := NewIntSet()
+func PrimeFactors(n int) set.Ints {
+	s := set.NewInts()
 	for i := 2; i <= n; i = NextPrime(i) {
 		for n % i == 0 {
-			set.Add(i)
+			s.Add(i)
 			n /= i
 			if n == 1 {
 				break
 			}
 		}
 	}
-	return set
+	return s
 }
 
 func IsPrime(n int) bool {

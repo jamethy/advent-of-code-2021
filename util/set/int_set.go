@@ -1,45 +1,45 @@
-package util
+package set
 
-type IntSet map[int]interface{}
+type Ints map[int]interface{}
 
-func (s *IntSet) Add(i ...int) {
+func (s *Ints) Add(i ...int) {
 	for _, o := range i {
 		(*s)[o] = i
 	}
 }
 
-func (s *IntSet) AddAll(other IntSet) {
+func (s *Ints) AddAll(other Ints) {
 	for o := range other {
 		s.Add(o)
 	}
 }
 
-func (s *IntSet) RemoveAll(other IntSet) {
+func (s *Ints) RemoveAll(other Ints) {
 	for o := range other {
 		s.Remove(o)
 	}
 }
 
-func (s *IntSet) Remove(i ...int) {
+func (s *Ints) Remove(i ...int) {
 	for _, o := range i {
 		delete(*s, o)
 	}
 }
 
-func NewIntSet(i ...int) IntSet {
-	s := IntSet{}
+func NewInts(i ...int) Ints {
+	s := Ints{}
 	for _, o := range i {
 		s[o] = o
 	}
 	return s
 }
 
-func (s *IntSet) Contains(i int) bool {
+func (s *Ints) Contains(i int) bool {
 	_, ok := (*s)[i]
 	return ok
 }
 
-func (s *IntSet) ContainsSlice(i []int) bool {
+func (s *Ints) ContainsSlice(i []int) bool {
 	for _, v := range i {
 		if !s.Contains(v) {
 			return false

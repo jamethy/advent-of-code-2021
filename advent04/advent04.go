@@ -1,10 +1,10 @@
 package advent04
 
 import (
-	"strconv"
 	"strings"
 
 	"advent2021/util"
+	"advent2021/util/set"
 )
 
 type row []int
@@ -13,7 +13,7 @@ type board []row
 func Solution(inputFile string) (part1, part2 interface{}) {
 	parts := util.ReadFileSplitBy(inputFile, "\n\n")
 
-	calls := splitToInts(parts[0], ",")
+	calls := util.ParseIntList(parts[0], ",")
 	boards := parseBoards(parts[1:])
 
 	winningBoard, winningNumber, called := findWinningBoard(boards, calls)
@@ -22,7 +22,7 @@ func Solution(inputFile string) (part1, part2 interface{}) {
 	return winningBoard.calculateScore(winningNumber, called), losingBoard.calculateScore(losingNumber, losingCalled)
 }
 
-func (b board) calculateScore(winningNumber int, called util.IntSet) int {
+func (b board) calculateScore(winningNumber int, called set.Ints) int {
 	var score int
 	for _, r := range b {
 		for _, i := range r {
@@ -34,8 +34,8 @@ func (b board) calculateScore(winningNumber int, called util.IntSet) int {
 	return score * winningNumber
 }
 
-func findWinningBoard(boards []board, calls []int) (board, int, util.IntSet) {
-	called := util.IntSet{}
+func findWinningBoard(boards []board, calls []int) (board, int, set.Ints) {
+	called := set.Ints{}
 	for _, call := range calls {
 		called.Add(call)
 		for _, b := range boards {
@@ -47,8 +47,8 @@ func findWinningBoard(boards []board, calls []int) (board, int, util.IntSet) {
 	return nil, 0, nil
 }
 
-func findLosingBoard(boards []board, calls []int) (board, int, util.IntSet) {
-	called := util.IntSet{}
+func findLosingBoard(boards []board, calls []int) (board, int, set.Ints) {
+	called := set.Ints{}
 	for _, call := range calls {
 		called.Add(call)
 
@@ -66,11 +66,11 @@ func findLosingBoard(boards []board, calls []int) (board, int, util.IntSet) {
 	return nil, 0, nil
 }
 
-func (r row) hasBingo(s util.IntSet) bool {
+func (r row) hasBingo(s set.Ints) bool {
 	return s.ContainsSlice(r)
 }
 
-func (b board) hasBingo(s util.IntSet) bool {
+func (b board) hasBingo(s set.Ints) bool {
 	// check rows
 	for _, r := range b {
 		if s.ContainsSlice(r) {
@@ -95,19 +95,6 @@ func (b board) hasBingo(s util.IntSet) bool {
 	return false
 }
 
-func splitToInts(str, sep string) []int {
-	parts := strings.Split(str, sep)
-	res := make([]int, 0, len(parts))
-	for _, p := range parts {
-		i, err := strconv.Atoi(p)
-		if err != nil {
-			continue
-		}
-		res = append(res, i)
-	}
-	return res
-}
-
 func parseBoards(parts []string) []board {
 	boards := make([]board, 0, len(parts))
 	for _, p := range parts {
@@ -117,7 +104,7 @@ func parseBoards(parts []string) []board {
 		}
 		var b board
 		for _, line := range lines {
-			ints := splitToInts(line, " ")
+			ints := util.ParseIntList(line, " ")
 			if len(ints) > 0 {
 				b = append(b, ints)
 			}

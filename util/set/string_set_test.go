@@ -1,4 +1,4 @@
-package util
+package set
 
 import (
 	"reflect"
@@ -11,9 +11,9 @@ func TestStringSet_Retain(t *testing.T) {
 	}
 	tests := []struct {
 		name string
-		s    StringSet
+		s    Strings
 		args args
-		want StringSet
+		want Strings
 	}{
 		{
 			name: "test1",

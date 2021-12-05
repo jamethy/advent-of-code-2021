@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"advent2021/util"
+	"advent2021/util/mathutil"
 )
 
 func Solution(inputFile string) (part1, part2 interface{}) {
@@ -12,8 +13,8 @@ func Solution(inputFile string) (part1, part2 interface{}) {
 
 	var maxX, maxY int
 	for _, line := range lines {
-		maxX = util.MaxInt(maxX, line.Start.X, line.End.X)
-		maxY = util.MaxInt(maxY, line.Start.Y, line.End.Y)
+		maxX = mathutil.MaxInt(maxX, line.Start.X, line.End.X)
+		maxY = mathutil.MaxInt(maxY, line.Start.Y, line.End.Y)
 	}
 
 	var part1Count, part2Count int
@@ -37,7 +38,7 @@ func Solution(inputFile string) (part1, part2 interface{}) {
 			if nonDiagonalIntersectionCount >= 2 {
 				part1Count++
 				part2Count++
-			} else if nonDiagonalIntersectionCount + diagonalIntersectionCount >= 2 {
+			} else if nonDiagonalIntersectionCount+diagonalIntersectionCount >= 2 {
 				part2Count++
 			}
 		}

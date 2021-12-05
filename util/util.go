@@ -23,6 +23,11 @@ func StringsToInts(str []string) []int {
 	return ret
 }
 
+func ParseIntList(str, sep string) []int {
+	parts := strings.Split(str, sep)
+	return StringsToInts(parts)
+}
+
 func ReadFile(name string) []string {
 	return ReadFileSplitBy(name, "\n")
 }
