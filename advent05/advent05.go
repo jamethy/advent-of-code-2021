@@ -9,7 +9,6 @@ import (
 
 func Solution(inputFile string) (part1, part2 interface{}) {
 	lines := parseInput(inputFile)
-	nonDiagonal := filterNonDiagonal(lines)
 
 	var maxX, maxY int
 	for _, line := range lines {
@@ -17,25 +16,34 @@ func Solution(inputFile string) (part1, part2 interface{}) {
 		maxY = util.MaxInt(maxY, line.Start.Y, line.End.Y)
 	}
 
-	var part1Count int
+	var part1Count, part2Count int
 	for x := 0; x <= maxX; x++ {
 		for y := 0; y <= maxY; y++ {
-			var intersectionCount int
-			for _, line := range nonDiagonal {
-				if line.IntersectsNonDiagonal(x, y) {
-					intersectionCount++
-					if intersectionCount >= 2 {
-						break
+			var nonDiagonalIntersectionCount, diagonalIntersectionCount int
+			for _, line := range lines {
+				if line.Intersects(x, y) {
+					if line.IsDiagonal() {
+						diagonalIntersectionCount++
+					} else {
+						nonDiagonalIntersectionCount++
 					}
 				}
+
+				// quit early for better performance
+				if nonDiagonalIntersectionCount >= 2 {
+					break
+				}
 			}
-			if intersectionCount >= 2 {
+			if nonDiagonalIntersectionCount >= 2 {
 				part1Count++
+				part2Count++
+			} else if nonDiagonalIntersectionCount + diagonalIntersectionCount >= 2 {
+				part2Count++
 			}
 		}
 	}
 
-	return part1Count, 0
+	return part1Count, part2Count
 }
 
 type (
@@ -50,37 +58,36 @@ type (
 	}
 )
 
-func (l Line) IntersectsNonDiagonal(x, y int) bool {
-	if l.Start.X == l.End.X {
-		if x != l.Start.X {
-			return false
-		}
-		return isBetweenInclusive(y, l.Start.Y, l.End.Y)
-	} else { // is vertical
-		if y != l.Start.Y {
-			return false
-		}
-		return isBetweenInclusive(x, l.Start.X, l.End.X)
+func (p Point) Sub(o Point) Point {
+	return Point{
+		X: p.X - o.X,
+		Y: p.Y - o.Y,
 	}
 }
 
-func isBetweenInclusive(v, a, b int) bool {
-	if a < b {
-		return v >= a && v <= b
-	} else {
-		return v <= a && v >= b
+func (l Line) Intersects(x, y int) bool {
+	lD := l.End.Sub(l.Start)
+	d := Point{X: x, Y: y}.Sub(l.Start)
+
+	// check if co-linear
+	cross := lD.X*d.Y - d.X*lD.Y
+	if cross != 0 {
+		return false
 	}
+	// now make sure it's in the same direction
+	dot := lD.X*d.X + lD.Y*d.Y
+	if dot < 0 {
+		return false
+	}
+
+	// now make sure it's not too long
+	lDSquared := lD.X*lD.X + lD.Y*lD.Y
+	dSquared := d.X*d.X + d.Y*d.Y
+	return lDSquared >= dSquared
 }
 
-func filterNonDiagonal(lines []Line) []Line {
-	filtered := make([]Line, 0, len(lines))
-	for _, line := range lines {
-		if line.Start.X == line.End.X || line.Start.Y == line.End.Y {
-			filtered = append(filtered, line)
-		}
-	}
-
-	return filtered
+func (l Line) IsDiagonal() bool {
+	return l.Start.X != l.End.X && l.Start.Y != l.End.Y
 }
 
 func parseInput(inputFile string) []Line {
