@@ -95,3 +95,10 @@ func NextPrime(n int) int {
 func IntPow(a, b int) int {
 	return int(math.Pow(float64(a), float64(b)))
 }
+
+func AbsInt(a int) int {
+	if a < 0 {
+		a *= -1
+	}
+	return a
+}
