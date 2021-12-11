@@ -12,16 +12,25 @@ type Grid [][]uint8
 func Solution(inputFile string) (part1, part2 interface{}) {
 	grid := parseGrid(inputFile)
 
-	flashCount := 0
-	for i := 0; i < 100; i++ {
-		flashCount += grid.step()
+	flashOfFirst100 := 0
+	stepOfSynchronousFlash := 0
+
+	for i := 0; ; i++ {
+		flashCount := grid.stepAndCountFlashes()
+		if i < 100 {
+			flashOfFirst100 += flashCount
+		}
+
+		if flashCount == 100 {
+			stepOfSynchronousFlash = i + 1
+			break
+		}
 	}
 
-
-	return flashCount, 0
+	return flashOfFirst100, stepOfSynchronousFlash
 }
 
-func (g Grid) step() int {
+func (g Grid) stepAndCountFlashes() int {
 	for i, row := range g {
 		for j := range row {
 			g.increment(i, j)
