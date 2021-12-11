@@ -1,6 +1,7 @@
 package advent09
 
 import (
+	"sort"
 	"strconv"
 	"strings"
 
@@ -13,16 +14,25 @@ func Solution(inputFile string) (part1, part2 interface{}) {
 	grid := parseGrid(inputFile)
 
 	riskSum := 0
+	basinSizes := make([]int, 0)
 	for i, row := range grid {
 		for j := range row {
 			v, lowPoint := grid.isLowPoint(i, j)
 			if lowPoint {
+
+				// part 1
 				riskSum += int(v) + 1
+
+				// part 2
+				basinSizes = append(basinSizes, grid.getBasinSize(i, j))
 			}
 		}
 	}
 
-	return riskSum, 0
+	sort.Ints(basinSizes)
+	basinSizes = basinSizes[len(basinSizes)-3:]
+
+	return riskSum, basinSizes[0] * basinSizes[1] * basinSizes[2]
 }
 
 func (g Grid) get(i, j int) (uint8, bool) {
@@ -35,14 +45,15 @@ func (g Grid) get(i, j int) (uint8, bool) {
 	return g[i][j], true
 }
 
+var neighborDirs = [][]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
+
 func (g Grid) isLowPoint(i, j int) (uint8, bool) {
 	v, ok := g.get(i, j)
 	if !ok {
 		return v, false
 	}
 
-	lowPointNeighbors := [][]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
-	for _, dir := range lowPointNeighbors {
+	for _, dir := range neighborDirs {
 		n, ok := g.get(i+dir[0], j+dir[1])
 		if ok && n <= v {
 			return v, false
@@ -50,6 +61,49 @@ func (g Grid) isLowPoint(i, j int) (uint8, bool) {
 	}
 
 	return v, true
+}
+
+type CoordinateSet [][]int
+
+func (c *CoordinateSet) Add(i, j int) {
+	if !c.Has(i, j) {
+		*c = append(*c, []int{i, j})
+	}
+}
+
+func (c *CoordinateSet) Has(i, j int) bool {
+	for _, existing := range *c {
+		if existing[0] == i && existing[1] == j {
+			return true
+		}
+	}
+	return false
+}
+
+func (g Grid) getBasinSize(i, j int) int {
+	coordinateSet := make(CoordinateSet, 0)
+	g.addBasinNeighbors(i, j, &coordinateSet)
+	return len(coordinateSet)
+}
+
+func (g Grid) addBasinNeighbors(i, j int, c *CoordinateSet) {
+	v, ok := g.get(i, j)
+	if !ok || v == 9 {
+		return
+	}
+	c.Add(i, j)
+
+	for _, dir := range neighborDirs {
+		ni, nj := i+dir[0], j+dir[1]
+		if c.Has(ni, nj) {
+			continue
+		}
+
+		n, ok := g.get(ni, nj)
+		if ok && n != 9 {
+			g.addBasinNeighbors(ni, nj, c)
+		}
+	}
 }
 
 func parseGrid(inputFile string) Grid {
