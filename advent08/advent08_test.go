@@ -19,7 +19,7 @@ func TestSolution(t *testing.T) {
 		{
 			name:      "input",
 			wantPart1: 294,
-			wantPart2: 0,
+			wantPart2: 973292,
 		},
 	}
 	for _, tt := range tests {
@@ -39,19 +39,19 @@ func TestDecodeMap(t *testing.T) {
 	tests := []struct {
 		name string
 		str  string
-		want map[string]string
+		want map[rune]string
 	}{
 		{
 			name: "Example",
 			str:  "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf",
-			want: map[string]string{
-				"d": "a",
-				"e": "b",
-				"a": "c",
-				"f": "d",
-				"g": "e",
-				"b": "f",
-				"c": "g",
+			want: map[rune]string{
+				'd': "a",
+				'e': "b",
+				'a': "c",
+				'f': "d",
+				'g': "e",
+				'b': "f",
+				'c': "g",
 			},
 		},
 	}
