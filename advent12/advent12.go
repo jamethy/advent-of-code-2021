@@ -11,10 +11,9 @@ const endName = "end"
 
 func Solution(inputFile string) (part1, part2 interface{}) {
 	caveStart := parseCave(inputFile)
-
-	paths := extendPaths([]*CaveNode{caveStart})
-	pathCount := len(paths)
-	return pathCount, 0
+	part1Paths := extendPaths([]*CaveNode{caveStart}, false)
+	part2Paths := extendPaths([]*CaveNode{caveStart}, true)
+	return len(part1Paths), len(part2Paths)
 }
 
 type (
@@ -28,15 +27,20 @@ func (c *CaveNode) IsSmallCave() bool {
 	return c.Name != endName && c.Name == strings.ToLower(c.Name)
 }
 
-func extendPaths(prev []*CaveNode) [][]*CaveNode {
+func extendPaths(prev []*CaveNode, smallCaveVisit bool) [][]*CaveNode {
 	paths := make([][]*CaveNode, 0)
 	last := prev[len(prev)-1]
 	for _, neighbor := range last.Neighbors {
 		if neighbor.Name == startName {
 			continue
 		}
+		futureSmallCaveVisit := smallCaveVisit
 		if neighbor.IsSmallCave() && caveNodeInPath(neighbor, prev) {
-			continue
+			if futureSmallCaveVisit {
+				futureSmallCaveVisit = false
+			} else {
+				continue
+			}
 		}
 
 		path := append(prev, neighbor)
@@ -44,7 +48,7 @@ func extendPaths(prev []*CaveNode) [][]*CaveNode {
 		if neighbor.Name == endName {
 			paths = append(paths, path)
 		} else {
-			paths = append(paths, extendPaths(path)...)
+			paths = append(paths, extendPaths(path, futureSmallCaveVisit)...)
 		}
 	}
 	return paths
