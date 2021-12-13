@@ -1,7 +1,6 @@
 package advent13
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -15,47 +14,43 @@ func Solution(inputFile string) (part1, part2 interface{}) {
 
 	var afterFirstFold int
 
-	//for i, fold := range folds {
-	dots = foldDots(dots, folds[0])
-	dots.Print()
+	for i, fold := range folds {
+		dots = foldDots(dots, fold)
 
-	//if i == 0 {
-	afterFirstFold = dots.Count()
-	//}
-	//}
+		if i == 0 {
+			afterFirstFold = dots.Count()
+		}
+	}
 
-	return afterFirstFold, 0
+	return afterFirstFold, "\n" + dots.Print()
 }
 
 func foldDots(input Dots, fold Fold) Dots {
-	maxX, maxY := input.Max()
+	maxX, maxY := input.MaxPoint()
 	var out Dots
 
 	if fold.Direction == "y" {
-		// directly copy 0, 0 -> maxX, maxY/2
 		out = input.DuplicateTo(maxX, fold.Number)
-		// apply mirrored 0, maxY/2+1 -> maxX, maxY
 		for x := 0; x <= maxX; x++ {
 			for y := fold.Number + 1; y <= maxY; y++ {
-				distFromFold := y - fold.Number
-				mirroredY := fold.Number - distFromFold
+				if input.IsMarked(x, y) {
+					distFromFold := y - fold.Number
+					mirroredY := fold.Number - distFromFold
 
-				if input.Get(x, y) {
-					out.Set(x, mirroredY, true)
+					out.MarkDot(x, mirroredY)
 				}
 			}
 		}
 	} else {
-		// directly copy 0, 0 -> maxX/2, maxY
 		out = input.DuplicateTo(fold.Number, maxY)
-		// apply mirrored maxX/2+1, 0 -> maxX, maxY
 		for x := fold.Number + 1; x <= maxX; x++ {
 			for y := 0; y <= maxY; y++ {
-				distFromFold := x - fold.Number
-				mirroredX := fold.Number - distFromFold
 
-				if input.Get(x, y) {
-					out.Set(mirroredX, y, true)
+				if input.IsMarked(x, y) {
+					distFromFold := x - fold.Number
+					mirroredX := fold.Number - distFromFold
+
+					out.MarkDot(mirroredX, y)
 				}
 			}
 		}
@@ -71,31 +66,33 @@ type Fold struct {
 	Number    int
 }
 
-func (d Dots) DuplicateTo(x, y int) Dots {
+func (d Dots) DuplicateTo(maxX, maxY int) Dots {
 	res := Dots{}
-	for i := 0; i <= x; i++ {
-		for j := 0; j <= y; j++ {
-			res.Set(i, j, d.Get(i, j))
+	for x := 0; x <= maxX; x++ {
+		for y := 0; y <= maxY; y++ {
+			if d.IsMarked(x, y) {
+				res.MarkDot(x, y)
+			}
 		}
 	}
 	return res
 }
 
-func (d Dots) Set(x, y int, value bool) {
+func (d Dots) MarkDot(x, y int) {
 	if _, ok := d[x]; !ok {
 		d[x] = make(map[int]bool)
 	}
-	d[x][y] = value
+	d[x][y] = true
 }
 
-func (d Dots) Get(x, y int) bool {
+func (d Dots) IsMarked(x, y int) bool {
 	if _, ok := d[x]; !ok {
 		return false
 	}
 	return d[x][y]
 }
 
-func (d Dots) Max() (x, y int) {
+func (d Dots) MaxPoint() (x, y int) {
 	for j, ys := range d {
 		if j > x {
 			x = j
@@ -121,14 +118,14 @@ func (d Dots) Count() int {
 	return count
 }
 
-func (d Dots) Print() {
+func (d Dots) Print() string {
 
 	sb := strings.Builder{}
 
-	maxX, maxY := d.Max()
+	maxX, maxY := d.MaxPoint()
 	for y := 0; y <= maxY; y++ {
 		for x := 0; x <= maxX; x++ {
-			if d.Get(x, y) {
+			if d.IsMarked(x, y) {
 				sb.WriteRune('#')
 			} else {
 				sb.WriteRune('.')
@@ -137,7 +134,7 @@ func (d Dots) Print() {
 		sb.WriteRune('\n')
 	}
 
-	fmt.Println(sb.String())
+	return sb.String()
 }
 
 func parseDots(lines []string) Dots {
@@ -151,7 +148,7 @@ func parseDots(lines []string) Dots {
 		x, _ := strconv.Atoi(parts[0])
 		y, _ := strconv.Atoi(parts[1])
 
-		dots.Set(x, y, true)
+		dots.MarkDot(x, y)
 	}
 	return dots
 }
