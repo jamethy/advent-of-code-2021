@@ -12,27 +12,23 @@ func Solution(inputFile string) (part1, part2 interface{}) {
 	template := parts[0]
 	rules := parseInsertionRules(parts[1])
 
-	for i := 0; i < 10; i++ {
-		var newTemplate string
-		for pos := range template {
-			if pos == 0 {
-				newTemplate = uint8sToString(template[pos])
-				continue
-			}
-			twoChars := uint8sToString(template[pos-1], template[pos])
-			if insert, ok := rules[twoChars]; ok {
-				newTemplate += uint8sToString(insert, template[pos])
-			} else {
-				newTemplate += uint8sToString(template[pos])
-			}
-		}
-		template = newTemplate
+	part1 = iterateAndGetScore(template, rules, 10)
+	//part2 = iterateAndGetScore(template, rules, 40)
+
+	return part1, part2
+}
+
+func iterateAndGetScore(template string, rules map[string]uint8, iterations int) int {
+	totalCounts := make(map[string]int)
+	for _, char := range template {
+		totalCounts[string(char)] += 1
+	}
+	for i := 1; i < len(template); i++ {
+		addCounts(uint8sToString(template[i-1], template[i]), rules, iterations, totalCounts)
 	}
 
-	counts := countLetters(template)
-
 	min, max := math.MaxInt, 0
-	for _, v := range counts {
+	for _, v := range totalCounts {
 		if v < min {
 			min = v
 		}
@@ -40,16 +36,19 @@ func Solution(inputFile string) (part1, part2 interface{}) {
 			max = v
 		}
 	}
-
-	return max - min, 0
+	return max - min
 }
 
-func countLetters(str string) map[uint8]int {
-	m := make(map[uint8]int, 0)
-	for _, r := range str {
-		m[uint8(r)] += 1
+func addCounts(str string, rules map[string]uint8, remaining int, counts map[string]int) {
+	if remaining == 0 {
+		return
 	}
-	return m
+	remaining--
+
+	insert := string(rules[str])
+	counts[insert] += 1
+	addCounts(uint8sToString(str[0], insert[0]), rules, remaining, counts)
+	addCounts(uint8sToString(insert[0], str[1]), rules, remaining, counts)
 }
 
 func uint8sToString(uint8s ...uint8) string {
